@@ -144,7 +144,7 @@
         "0"
     ],
     "machine_pause_gcode": "PAUSE\n",
-    "machine_start_gcode": "PRINT_START_PHASE_1 BED_TEMP=[bed_temperature_initial_layer_single] HOTEND_TEMP=[nozzle_temperature_initial_layer] CHAMBER_TEMP=[chamber_temperature]\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0\nG4 P120000 # wait for 2 minutes\n  \n  \nM109 S[nozzle_temperature_initial_layer]     ; Wait for hotend to reach final temp\n\n  \nG92 E0.0 ; reset extruder distance position\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]+30} E40 F360.0\nG92 E0.0\nG1 E-0.5 F2100;\n\n\nG0 Z2\n\nG92 E0.0 ; reset extruder distance position\n\nSET_FILAMENT_SENSOR SENSOR=filament_motion ENABLE=1\nM117",
+    "machine_start_gcode": "PRINT_START_PHASE_1 BED_TEMP=[bed_temperature_initial_layer_single] HOTEND_TEMP=[nozzle_temperature_initial_layer] CHAMBER_TEMP=[chamber_temperature]\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0\nG4 P120000 # wait for 2 minutes\n  \n#finaltest\n\nM109 S[nozzle_temperature_initial_layer]     ; Wait for hotend to reach final temp\n\n  \nG92 E0.0 ; reset extruder distance position\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]+30} E40 F360.0\nG92 E0.0\nG1 E-0.5 F2100;\n\n\nG0 Z2\n\nG92 E0.0 ; reset extruder distance position\n\nSET_FILAMENT_SENSOR SENSOR=filament_motion ENABLE=1\nM117",
     "machine_tool_change_time": "0",
     "machine_unload_filament_time": "0",
     "manual_filament_change": "0",
