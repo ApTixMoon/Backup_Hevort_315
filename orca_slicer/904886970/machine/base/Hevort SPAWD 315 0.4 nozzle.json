@@ -183,8 +183,8 @@
     "printable_area": [
         "0x0",
         "300x0",
-        "300x270",
-        "0x270"
+        "300x265",
+        "0x265"
     ],
     "printable_height": "450",
     "printer_agent": "",
