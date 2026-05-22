@@ -7,6 +7,10 @@
 - [ ] **CANCEL_PRINT** — legg til `STOP_HEAT_SOAK` som første linje i makroen for å unngå advarsel når print avbrytes under heat_soak
 - [ ] **PAUSE makro** — bekreft at mainsail.cfg bruker `rename_existing: BASE_PAUSE` ved å kjøre: `cat ~/printer_data/config/mainsail.cfg | grep rename_existing`
 
+## OrcaSlicer
+
+- [ ] **PETG flow rate** — reduser flow rate med -2% for PETG-profilen
+
 ## Oppsett
 
 - [ ] **klipper-backup branch** — endre `branch_name=main` til `branch_name=backup` i `~/klipper-backup/.env` slik at klipper-backup pusher til en egen branch og ikke overskriver filer i main
