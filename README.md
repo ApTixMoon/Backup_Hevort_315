@@ -1,4 +1,12 @@
-# Klipper-Backup 💾 
-Klipper backup script for manual or automated GitHub backups 
+# Backup — Hevort 315
 
-This backup is provided by [Klipper-Backup](https://github.com/Staubgeborener/Klipper-Backup).
+## Branch-struktur
+
+| Branch | Innhold | Kilde |
+|--------|---------|-------|
+| `main` | README, TODO, OrcaSlicer-innstillinger | Manuelt + orca_backup.ps1 |
+| `klipper` | Klipper/printer config (printer_data/) | klipper-backup (automatisk) |
+| `orca` | OrcaSlicer-innstillinger (fremtidig) | orca_backup.ps1 |
+
+> **NB:** `printer_data/`-mappen i `main` er arkivert og ikke lenger oppdatert.
+> Bruk `klipper`-branchen for gjeldende printerkonfigurasjon.
