@@ -3,7 +3,7 @@
         "0"
     ],
     "activate_chamber_temp_control": [
-        "0"
+        "1"
     ],
     "adaptive_pressure_advance": [
         "0"
@@ -18,13 +18,13 @@
         "0"
     ],
     "additional_cooling_fan_speed": [
-        "0"
+        "10"
     ],
     "chamber_temperature": [
-        "0"
+        "90"
     ],
     "close_fan_the_first_x_layers": [
-        "3"
+        "4"
     ],
     "compatible_printers": [
         "Hevort SPAWD 315 0.4 nozzle"
@@ -36,10 +36,10 @@
         "70"
     ],
     "cool_plate_temp": [
-        "60"
+        "0"
     ],
     "cool_plate_temp_initial_layer": [
-        "60"
+        "0"
     ],
     "default_filament_colour": [
         ""
@@ -57,19 +57,19 @@
         "1"
     ],
     "eng_plate_temp": [
-        "0"
+        "90"
     ],
     "eng_plate_temp_initial_layer": [
-        "0"
+        "90"
     ],
     "fan_cooling_layer_time": [
-        "20"
+        "35"
     ],
     "fan_max_speed": [
-        "70"
+        "20"
     ],
     "fan_min_speed": [
-        "20"
+        "10"
     ],
     "filament_adaptive_volumetric_speed": [
         "0"
@@ -90,10 +90,10 @@
         "4"
     ],
     "filament_cost": [
-        "30"
+        "315"
     ],
     "filament_density": [
-        "1.27"
+        "1.1"
     ],
     "filament_deretraction_speed": [
         "nil"
@@ -102,13 +102,13 @@
         "1.75"
     ],
     "filament_end_gcode": [
-        "; filament end gcode \nM106 P3 S0\n"
+        "; filament end gcode \n;M106 P3 S0\n"
     ],
     "filament_extruder_variant": [
         "Direct Drive Standard"
     ],
     "filament_flow_ratio": [
-        "0.98"
+        "0.96"
     ],
     "filament_flush_temp": [
         "0"
@@ -116,7 +116,7 @@
     "filament_flush_volumetric_speed": [
         "0"
     ],
-    "filament_id": "P3636c68",
+    "filament_id": "P4689bb9",
     "filament_ironing_flow": [
         "nil"
     ],
@@ -142,7 +142,7 @@
         "nil"
     ],
     "filament_max_volumetric_speed": [
-        "30"
+        "40"
     ],
     "filament_minimal_purge_on_wipe_tower": [
         "15"
@@ -196,10 +196,10 @@
         "nil"
     ],
     "filament_settings_id": [
-        "Generic PET template @Hevort SPAWD 315 0.4 nozzle"
+        "3DJake ASA @Hevort SPAWD 315 0.4 nozzle"
     ],
     "filament_shrink": [
-        "100%"
+        "99%"
     ],
     "filament_shrinkage_compensation_z": [
         "100%"
@@ -214,7 +214,7 @@
         "0"
     ],
     "filament_start_gcode": [
-        "; filament start gcode\n{if (bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}M106 P3 S180\n{elsif (bed_temperature[current_extruder] >50)||(bed_temperature_initial_layer[current_extruder] >50)}M106 P3 S255\n{endif};Prevent PLA from jamming\n\n{if activate_air_filtration[current_extruder] && support_air_filtration}\nM106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n{endif}"
+        "; Filament gcode\n;{if activate_air_filtration[current_extruder] && support_air_filtration}\n;M106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n;{endif}"
     ],
     "filament_toolchange_delay": [
         "0"
@@ -235,7 +235,7 @@
         "4"
     ],
     "filament_type": [
-        "PETG"
+        "ASA"
     ],
     "filament_unloading_speed": [
         "90"
@@ -244,7 +244,7 @@
         "100"
     ],
     "filament_vendor": [
-        "Generic"
+        "3DJake"
     ],
     "filament_wipe": [
         "nil"
@@ -260,13 +260,13 @@
     ],
     "from": "User",
     "full_fan_speed_layer": [
-        "0"
+        "7"
     ],
     "hot_plate_temp": [
-        "80"
+        "100"
     ],
     "hot_plate_temp_initial_layer": [
-        "80"
+        "100"
     ],
     "idle_temperature": [
         "0"
@@ -281,30 +281,30 @@
     "long_retractions_when_ec": [
         "0"
     ],
-    "name": "Generic PET template @Hevort SPAWD 315 0.4 nozzle",
+    "name": "3DJake ASA @Hevort SPAWD 315 0.4 nozzle",
     "nozzle_temperature": [
-        "255"
+        "275"
     ],
     "nozzle_temperature_initial_layer": [
-        "255"
+        "275"
     ],
     "nozzle_temperature_range_high": [
-        "260"
+        "280"
     ],
     "nozzle_temperature_range_low": [
-        "220"
+        "240"
     ],
     "overhang_fan_speed": [
-        "100"
+        "30"
     ],
     "overhang_fan_threshold": [
-        "95%"
+        "25%"
     ],
     "pellet_flow_coefficient": [
         "0.4157"
     ],
     "pressure_advance": [
-        "0.038"
+        "0.02"
     ],
     "reduce_fan_stop_start_freq": [
         "1"
@@ -319,10 +319,10 @@
         "1"
     ],
     "slow_down_layer_time": [
-        "8"
+        "3"
     ],
     "slow_down_min_speed": [
-        "10"
+        "20"
     ],
     "supertack_plate_temp": [
         "35"
@@ -334,7 +334,7 @@
         "-1"
     ],
     "temperature_vitrification": [
-        "70"
+        "100"
     ],
     "textured_cool_plate_temp": [
         "40"
@@ -343,12 +343,12 @@
         "40"
     ],
     "textured_plate_temp": [
-        "80"
+        "100"
     ],
     "textured_plate_temp_initial_layer": [
-        "80"
+        "100"
     ],
-    "version": "1.7.0.2",
+    "version": "1.0.0.0",
     "volumetric_speed_coefficients": [
         ""
     ]
