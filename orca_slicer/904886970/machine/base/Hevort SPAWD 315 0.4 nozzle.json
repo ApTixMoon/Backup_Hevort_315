@@ -56,7 +56,7 @@
     "fan_kickstart": "2",
     "fan_speedup_overhangs": "1",
     "fan_speedup_time": "2",
-    "file_start_gcode": "¨test",
+    "file_start_gcode": "",
     "from": "User",
     "gcode_flavor": "klipper",
     "grab_length": [
