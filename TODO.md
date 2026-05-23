@@ -10,14 +10,14 @@
 - [ ] **OrcaSlicer start-gcode** — sjekk at `M107` kjøres før `M109` slik at CPAP-viften er av under oppvarming av dyspe
 
 ## OrcaSlicer
-> OrcaSlicer-filer ligger i `main`-branchen (orca_slicer/)
+> OrcaSlicer-filer ligger i `orca`-branchen
 
 - [ ] **PETG flow rate** — reduser flow rate med -2% for PETG-profilen
-- [ ] **Flytt OrcaSlicer-backup til `orca`-branch** — oppdater `orca_backup.ps1` med ny branch-logikk og kjør én gang for å opprette `orca`-branchen på GitHub
 
 ## Oppsett
 
-- [ ] **Slett utdatert `printer_data/` fra `main`** — denne er arkivert, gjeldende config er i `klipper`-branchen
+- [x] **`printer_data/` arkivert fra `main`** — slettet, gjeldende config er i `klipper`-branchen
+- [x] **OrcaSlicer-backup flyttet til `orca`-branch** — orca_backup.ps1 oppdatert og kjørt
 
 ## Valgfritt / forbedringer
 
