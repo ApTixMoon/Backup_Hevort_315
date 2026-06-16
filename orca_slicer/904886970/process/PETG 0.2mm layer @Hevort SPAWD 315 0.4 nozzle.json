@@ -15,5 +15,7 @@
         "Direct Drive Standard"
     ],
     "print_settings_id": "PETG 0.2mm layer @Hevort SPAWD 315 0.4 nozzle",
-    "version": "1.7.0.2"
+    "sparse_infill_density": "40%",
+    "version": "1.7.0.2",
+    "wall_loops": "5"
 }
