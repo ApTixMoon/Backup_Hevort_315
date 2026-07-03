@@ -1,27 +1,74 @@
 # Todo-liste — Hevort 315
 
-## Klipper config
-> Gjeldende config ligger i `klipper`-branchen
+> Oppdatert 03.07.2026 etter full audit av printer-config (`klipper`-branch), OrcaSlicer (`orca`-branch), Raspberry Pi og WiFi. Alle config-endringer gjøres manuelt via Mainsail/Orca — aldri push til `klipper`/`orca` (én-veis backup).
+
+## 🔴 Kritisk — aktive feil
+
+- [ ] **Mobileraker krasjer fortsatt hvert 10. sek** — `mobileraker.conf` linje 21: ` Default: true` (innrykket, uten `#`) tolkes av configparser som fortsettelse av `include_snapshot`-verdien → getboolean-krasj. Fiks: endre linjen til `# Default: true`, deretter `sudo systemctl restart mobileraker` og verifiser med `systemctl status mobileraker` (ingen restarts).
+- [ ] **idle_timeout slår av printeren midt i pause** — `printer.cfg` `[idle_timeout]` (linje ~731) kjører `POWEROFF_PRINTER` etter 20 min idle, og en PAUSET print regnes som idle (runout → pause → 20 min → strømkutt → print tapt). Fiks: gjør gcode betinget:
+  ```ini
+  [idle_timeout]
+  gcode:
+    {% if printer.pause_resume.is_paused %}
+      M104 S0    ; kun hotend av ved pause
+    {% else %}
+      TURN_OFF_HEATERS
+      POWEROFF_PRINTER
+      M84
+    {% endif %}
+  timeout: 1200
+  ```
+- [ ] **WLED når ikke frem — feil subnett** — `[wled my_leds]` i moonraker.conf peker på `192.168.1.232`, printeren står på 192.168.38.x. `ping 192.168.1.232` fra Pi; flytt ESP32 til 38-nettet (sjekk SSID), gi fast IP, oppdater `address:`, restart moonraker, test `WLED_ON STRIP=my_leds`. (Inline-kommentarene i seksjonen er OK — Moonraker striper dem.)
+
+## 🟠 WiFi-stabilitet Raspberry Pi 5
+
+Diagnose: brcmfmac-driveren henger (kjent RPi5-bug, «HT Avail timeout» — kun reboot hjelper; sonar sine WiFi-restarter biter ikke). Triggere: roaming mellom AP-er/subnett + vedvarende last fra 1080p kamerastrøm og WebSockets. 90 unsafe shutdowns i Moonraker-DB.
+
+- [ ] **roamoff + feature_disable**: `echo "options brcmfmac roamoff=1 feature_disable=0x282000" | sudo tee /etc/modprobe.d/brcmfmac.conf` → reboot → `cat /sys/module/brcmfmac/parameters/roamoff` skal vise `1` (samme fiks som Home Assistant OS shipper som standard)
+- [ ] **Oppdater firmware/kernel**: `sudo apt update && sudo apt full-upgrade` (WiFi-firmware er fra aug 2023)
+- [ ] **Persistent journal** (for å obdusere neste frys): `sudo mkdir -p /var/log/journal && sudo systemctl restart systemd-journald` → etter neste krasj: `journalctl -k -b -1 | grep -E "brcmfmac|wlan"`
+- [ ] **Vurder**: crowsnest ned til 1280x720/15fps hvis WiFi beholdes; Ethernet er den definitive løsningen
+
+## 🟡 Klipper config
 
 - [ ] **Eddy probe rekalibrering** — kjør `PROBE_EDDY_CURRENT_CALIBRATE CHIP=eddy_probe` etterfulgt av `SAVE_CONFIG` for å fikse negativ slope-delta på tap-deteksjon
-- [ ] **`tap_threshold`** — sett til `0` midlertidig i printer.cfg til rekalibrering er utført (nåværende verdi `30` gir "insufficient slope delta" feil)
-- [x] **CANCEL_PRINT** — `STOP_HEAT_SOAK` lagt til som første linje i makroen ✓
-- [x] **PAUSE makro** — `BASE_PAUSE` var en transponeringsfeil av `PAUSE_BASE` (navnet mainsail.cfg faktisk gir den omdøpte PAUSE via `rename_existing`). Ga "Unknown command: BASE_PAUSE" hver gang HEAT_SOAK pauset printeren. Rettet til `PAUSE_BASE` ✓
-- [x] **HEAT_SOAK ble hoppet over / "aborted" feil** — `PRINT_START_PHASE_1` delt i to: `PHASE_1` avsluttes rett etter `HEAT_SOAK`-kallet (med `MIN_SOAK_TIME=5` for garantert min. 5 min soak), og leveling/mesh (`BED_MESH_CALIBRATE`, `SET_Z_FROM_PROBE`, `SKEW_PROFILE`) er flyttet til ny `PRINT_START_PHASE_2` som trigges via `COMPLETE`-callback når soaken faktisk er ferdig. Fikset også `SOAK_TIMEOUT==MIN_SOAK_TIME==5` kollisjon (begge var 5 ved `CHAMBER_TEMP=0`, som trigget `CANCEL_PRINT` etter nøyaktig 5 min) — `SOAK_TIMEOUT` for `CHAMBER_TEMP=0` er nå 15 min. Ryddet opp i "TEST"-kommentarer i heatsoak.cfg ✓
-  - NB: PHASE_2 kjører nå full `BED_MESH_CALIBRATE` (RAPID_SCAN) på hver print i stedet for å laste lagret "default" mesh — print-start tar litt lenger tid, men gir mer nøyaktig mesh på en oppvarmet seng
+- [ ] **`tap_threshold`** — sett til `0` midlertidig i printer.cfg (linje ~381) til rekalibrering er utført (nåværende `30` gir "insufficient slope delta")
+- [ ] **Slett `[neopixel my_neopixel]`** (printer.cfg ~666) — død config: host-MCU kan ikke drive WS2812 på gpio17 (krever SPI/gpio10). WLED overtar LED-styring.
+- [ ] **Slett TEST-blokken i heatsoak.cfg** (linje 282–286) — ufarlig i dag (`#` i kolonne 0 stripes av Klipper før Jinja), men forvirrende. NB: SLETT linjene, ikke fjern `#` — da knekker configen.
+- [ ] **`max_accel: 50000` → ~20000** — input shaper (Y=78.8Hz ei) støtter realistisk 8–15k uten ringing; 50k er kun et usikkert tak
+- [ ] **`max_extrude_cross_section: 50` → 5–10** — blob-vernet er i praksis avslått (default 4); 50 er mer enn runout-purgen trenger
+- [ ] **Verifiser TMC5160 X/Y `run_current: 2.6`A** mot motorenes merkestrøm (bør være ≤ ~85 % av rated)
+- [ ] **`[bed_mesh]` `algorithm: lagrange` → `bicubic`** (bedre ved 6x6-grid); vurder `fade_start/fade_end`
+- [ ] **WLED-lys i makroer** (etter at WLED virker): `SET_WLED STRIP=my_leds RED=1 GREEN=1 BLUE=1` først i `PRINT_START_PHASE_1`, `RED=0 GREEN=1 BLUE=0` sist i `PRINT_END`, evt. `RED=1` i `CANCEL_PRINT`
+- [ ] **Rydd macros.cfg** — 3 stablede HEAT_SOAK-varianter (kun siste er aktiv), `#CENTER`/`#M109`-hale
 
-## OrcaSlicer
-> OrcaSlicer-filer ligger i `orca`-branchen
+## 🟡 OrcaSlicer
 
-- [ ] **Start-gcode X-offset** — `{first_layer_print_min[0]-3}` kan gi negativ X-posisjon. Bytt til `{max(first_layer_print_min[0] - 3, 0)}` begge steder i start-gcode
+> Verifisert OK: `printable_area` 300x265/Z450 matcher printer.cfg eksakt («315» er rammenavnet). Start-gcode kaller `PRINT_START_PHASE_1` riktig og setter M109 etterpå; PRINT_END på plass; PHASE_2 brukes ikke.
+
+- [ ] **Maskinprofil-defaults peker på ikke-eksisterende profiler** — `default_filament_profile: "Vzbot Generic ABS"` og `default_print_profile: "0.20mm Standard @Vzbot"` → pek på faktiske Hevort-profiler
+- [ ] **PETG-prosess**: `bridge_speed 300` → ~60; overhang-hastigheter er inverterte (`4_4=210` raskere enn `3_4=170`) — bratteste overheng skal være tregest (f.eks. 4_4=30–50)
+- [ ] **ASA-profiler spriker** — 3DJake 275°C vs Generic 230°C nozzle (normalt 240–260); velg én baseline
+- [ ] **ABS mangler kammerstyring** — `chamber_temperature 0`/`control 0` og `fan_max 80`, mens ASA kjører kammer 70–90/fan 20. ABS bør ha kammer ~50–60 og lavere fan-max
+- [ ] **Start-gcode X-offset** — `{first_layer_print_min[0]-3}` kan gi negativ X. Bytt til `{max(first_layer_print_min[0] - 3, 0)}` begge steder
+- [ ] **Opprydding**: `@MyMarlin`-kopiene (2 process + 2 filament + eSUN PLA), `0.2mm ABS_CF @HevORT315_0.5` (arver fra MyKlipper som ikke finnes — repoint eller slett), tom `ASA 0.2mm layer @Hevort SPAWD 315`-stub, orphan `3DJake ASA @Bambu Lab X1E .info`
+
+## 🟢 Tjenester / hygiene
+
+- [ ] **Fjern `[sonar]`-blokken fra moonraker.conf** — sonar-daemonen leser `sonar.conf` direkte (den er den aktive configen); Moonraker har ingen sonar-komponent, blokken er redundant
+- [ ] **mainsail-config i backup er gitlink** — `rm -rf ~/mainsail-config/.git` på Pi hvis faktiske filer ønskes i backupen
+- [ ] **Timelapse** — komponenten er installert men `[timelapse]` er utkommentert i moonraker.conf; aktiver hvis ønsket
+
+## Fullført
+
+- [x] **CANCEL_PRINT** — `STOP_HEAT_SOAK` lagt til i makroen ✓
+- [x] **PAUSE makro** — endelig løsning: `rename_existing: _PAUSE_BASE` i macros.cfg (overstyrer mainsail.cfg helt); is_soaking-gren uten parkering, ellers `_PAUSE_BASE` + `_TOOLHEAD_PARK_PAUSE_CANCEL` ✓
+- [x] **HEAT_SOAK auto-resume** — PHASE_2-løsningen ble forkastet; endelig løsning er én-fase med `CANCEL="{ON_TIMEOUT}"`: `ON_TIMEOUT=RESUME` ved `CHAMBER_TEMP=0` (fortsett etter timeout), `CANCEL_PRINT` ved kammer-print (ikke start på kaldt kammer). Bekreftet i backup 0910057 ✓
+- [x] **mobileraker `include_snapshot: True` → `true`** ✓ (men se kritisk punkt over — linje 21 gjenstår)
+- [x] **WLED-makroer** (`WLED_ON`/`WLED_OFF`/`SET_WLED`) lagt inn i macros.cfg ✓
+- [x] **`[wled my_leds]`** lagt inn i moonraker.conf ✓ (men se kritisk punkt om subnett)
+- [x] **Bed mesh dekning** — `mesh_max: 260, 260` ✓
 - [x] **PETG flow rate** — redusert med -2% ✓
-- [x] **M107 i start-gcode** — bekreftet at `M107` allerede kjøres inne i `PRINT_START_PHASE_1`-makroen ✓
-
-## Oppsett
-
-- [x] **`printer_data/` arkivert fra `main`** — slettet, gjeldende config er i `klipper`-branchen ✓
-- [x] **OrcaSlicer-backup flyttet til `orca`-branch** — orca_backup.ps1 oppdatert og kjørt ✓
-
-## Valgfritt / forbedringer
-
-- [ ] **Bed mesh dekning** — vurder å øke `mesh_max: 260, 230` → `260, 260` for bedre dekning bakover på sengen
+- [x] **M107 i start-gcode** — kjøres i `PRINT_START_PHASE_1` ✓
+- [x] **`printer_data/` arkivert fra `main`** ✓
+- [x] **OrcaSlicer-backup flyttet til `orca`-branch** ✓
