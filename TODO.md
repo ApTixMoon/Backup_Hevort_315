@@ -1,24 +1,12 @@
 # Todo-liste — Hevort 315
 
-> Oppdatert 03.07.2026 etter full audit av printer-config (`klipper`-branch), OrcaSlicer (`orca`-branch), Raspberry Pi og WiFi. Alle config-endringer gjøres manuelt via Mainsail/Orca — aldri push til `klipper`/`orca` (én-veis backup).
+> Oppdatert 04.07.2026. Full audit av printer-config (`klipper`-branch), OrcaSlicer (`orca`-branch), Raspberry Pi og WiFi. Alle config-endringer gjøres manuelt via Mainsail/Orca — aldri push til `klipper`/`orca` (én-veis backup). Status verifisert mot backup 68211ed.
 
-## 🔴 Kritisk — aktive feil
+## 🔴 Kritisk
 
-- [ ] **Mobileraker krasjer fortsatt hvert 10. sek** — `mobileraker.conf` linje 21: ` Default: true` (innrykket, uten `#`) tolkes av configparser som fortsettelse av `include_snapshot`-verdien → getboolean-krasj. Fiks: endre linjen til `# Default: true`, deretter `sudo systemctl restart mobileraker` og verifiser med `systemctl status mobileraker` (ingen restarts).
-- [ ] **idle_timeout slår av printeren midt i pause** — `printer.cfg` `[idle_timeout]` (linje ~731) kjører `POWEROFF_PRINTER` etter 20 min idle, og en PAUSET print regnes som idle (runout → pause → 20 min → strømkutt → print tapt). Fiks: gjør gcode betinget:
-  ```ini
-  [idle_timeout]
-  gcode:
-    {% if printer.pause_resume.is_paused %}
-      M104 S0    ; kun hotend av ved pause
-    {% else %}
-      TURN_OFF_HEATERS
-      POWEROFF_PRINTER
-      M84
-    {% endif %}
-  timeout: 1200
-  ```
-- [ ] **WLED når ikke frem — feil subnett** — `[wled my_leds]` i moonraker.conf peker på `192.168.1.232`, printeren står på 192.168.38.x. `ping 192.168.1.232` fra Pi; flytt ESP32 til 38-nettet (sjekk SSID), gi fast IP, oppdater `address:`, restart moonraker, test `WLED_ON STRIP=my_leds`. (Inline-kommentarene i seksjonen er OK — Moonraker striper dem.)
+- [x] **Mobileraker-krasj (hvert 10. sek)** — løst: ` Default: true` flyttet til kolonne 0 → egen (ufarlig) nøkkel i stedet for fortsettelse av `include_snapshot`. Verifisert med configparser: parses nå rent som `True`, ingen krasj. ✓
+- [x] **idle_timeout slo av printeren midt i pause** — løst: `[idle_timeout]` gjort betinget på `printer.pause_resume.is_paused` (kun `M104 S0` ved pause, full power-off ellers). Runout-pause kutter ikke lenger strømmen. ✓
+- [ ] **WLED når ikke frem — feil subnett** — `[wled my_leds]` peker fortsatt på `192.168.1.232`, printeren står på 192.168.38.x. `ping 192.168.1.232` fra Pi; flytt ESP32 til 38-nettet (sjekk SSID), gi fast IP, oppdater `address:`, restart moonraker, test `WLED_ON STRIP=my_leds`. (Inline-kommentarene i seksjonen er OK — Moonraker striper dem.)
 
 ## 🟠 WiFi-stabilitet Raspberry Pi 5
 
@@ -32,15 +20,15 @@ Diagnose: brcmfmac-driveren henger (kjent RPi5-bug, «HT Avail timeout» — kun
 ## 🟡 Klipper config
 
 - [ ] **Eddy probe rekalibrering** — kjør `PROBE_EDDY_CURRENT_CALIBRATE CHIP=eddy_probe` etterfulgt av `SAVE_CONFIG` for å fikse negativ slope-delta på tap-deteksjon
-- [ ] **`tap_threshold`** — sett til `0` midlertidig i printer.cfg (linje ~381) til rekalibrering er utført (nåværende `30` gir "insufficient slope delta")
-- [ ] **Slett `[neopixel my_neopixel]`** (printer.cfg ~666) — død config: host-MCU kan ikke drive WS2812 på gpio17 (krever SPI/gpio10). WLED overtar LED-styring.
+- [ ] **`tap_threshold`** — sett til `0` midlertidig i printer.cfg (linje ~381, fortsatt `30`) til rekalibrering er utført (`30` gir "insufficient slope delta")
+- [x] **Slett `[neopixel my_neopixel]`** — fjernet fra printer.cfg. ✓
 - [ ] **Slett TEST-blokken i heatsoak.cfg** (linje 282–286) — ufarlig i dag (`#` i kolonne 0 stripes av Klipper før Jinja), men forvirrende. NB: SLETT linjene, ikke fjern `#` — da knekker configen.
-- [ ] **`max_accel: 50000` → ~20000** — input shaper (Y=78.8Hz ei) støtter realistisk 8–15k uten ringing; 50k er kun et usikkert tak
-- [ ] **`max_extrude_cross_section: 50` → 5–10** — blob-vernet er i praksis avslått (default 4); 50 er mer enn runout-purgen trenger
+- [x] **`max_accel`** — senket 50000 → 30000 (matcher Orca sin travel-accel; godt innenfor shaper). ✓
+- [ ] **`max_extrude_cross_section: 50` → 5–10** (printer.cfg linje 496) — blob-vernet er i praksis avslått (default 4); 50 er mer enn runout-purgen trenger
 - [ ] **Verifiser TMC5160 X/Y `run_current: 2.6`A** mot motorenes merkestrøm (bør være ≤ ~85 % av rated)
-- [ ] **`[bed_mesh]` `algorithm: lagrange` → `bicubic`** (bedre ved 6x6-grid); vurder `fade_start/fade_end`
+- [ ] **`[bed_mesh]` `algorithm: lagrange` → `bicubic`** (printer.cfg linje 289; bedre ved 6x6-grid); vurder `fade_start/fade_end`
 - [ ] **WLED-lys i makroer** (etter at WLED virker): `SET_WLED STRIP=my_leds RED=1 GREEN=1 BLUE=1` først i `PRINT_START_PHASE_1`, `RED=0 GREEN=1 BLUE=0` sist i `PRINT_END`, evt. `RED=1` i `CANCEL_PRINT`
-- [ ] **Rydd macros.cfg** — 3 stablede HEAT_SOAK-varianter (kun siste er aktiv), `#CENTER`/`#M109`-hale
+- [x] **Rydd macros.cfg** — fjernet stablet HEAT_SOAK-variant og `#M109`-hale i PRINT_START_PHASE_1. ✓
 
 ## 🟡 OrcaSlicer
 
@@ -55,18 +43,17 @@ Diagnose: brcmfmac-driveren henger (kjent RPi5-bug, «HT Avail timeout» — kun
 
 ## 🟢 Tjenester / hygiene
 
-- [ ] **Fjern `[sonar]`-blokken fra moonraker.conf** — sonar-daemonen leser `sonar.conf` direkte (den er den aktive configen); Moonraker har ingen sonar-komponent, blokken er redundant
+- [ ] **Fjern `[sonar]`-blokken fra moonraker.conf** (fortsatt til stede, linje 89) — sonar-daemonen leser `sonar.conf` direkte (den er den aktive configen); Moonraker har ingen sonar-komponent, blokken er redundant
 - [ ] **mainsail-config i backup er gitlink** — `rm -rf ~/mainsail-config/.git` på Pi hvis faktiske filer ønskes i backupen
 - [ ] **Timelapse** — komponenten er installert men `[timelapse]` er utkommentert i moonraker.conf; aktiver hvis ønsket
 
-## Fullført
+## Fullført (tidligere)
 
 - [x] **CANCEL_PRINT** — `STOP_HEAT_SOAK` lagt til i makroen ✓
-- [x] **PAUSE makro** — endelig løsning: `rename_existing: _PAUSE_BASE` i macros.cfg (overstyrer mainsail.cfg helt); is_soaking-gren uten parkering, ellers `_PAUSE_BASE` + `_TOOLHEAD_PARK_PAUSE_CANCEL` ✓
-- [x] **HEAT_SOAK auto-resume** — PHASE_2-løsningen ble forkastet; endelig løsning er én-fase med `CANCEL="{ON_TIMEOUT}"`: `ON_TIMEOUT=RESUME` ved `CHAMBER_TEMP=0` (fortsett etter timeout), `CANCEL_PRINT` ved kammer-print (ikke start på kaldt kammer). Bekreftet i backup 0910057 ✓
-- [x] **mobileraker `include_snapshot: True` → `true`** ✓ (men se kritisk punkt over — linje 21 gjenstår)
+- [x] **PAUSE makro** — `rename_existing: _PAUSE_BASE` i macros.cfg; is_soaking-gren uten parkering, ellers `_PAUSE_BASE` + `_TOOLHEAD_PARK_PAUSE_CANCEL` ✓
+- [x] **HEAT_SOAK auto-resume** — én-fase med `CANCEL="{ON_TIMEOUT}"`: `RESUME` ved `CHAMBER_TEMP=0`, `CANCEL_PRINT` ved kammer-print ✓
 - [x] **WLED-makroer** (`WLED_ON`/`WLED_OFF`/`SET_WLED`) lagt inn i macros.cfg ✓
-- [x] **`[wled my_leds]`** lagt inn i moonraker.conf ✓ (men se kritisk punkt om subnett)
+- [x] **`[wled my_leds]`** lagt inn i moonraker.conf ✓ (men se subnett-punkt over)
 - [x] **Bed mesh dekning** — `mesh_max: 260, 260` ✓
 - [x] **PETG flow rate** — redusert med -2% ✓
 - [x] **M107 i start-gcode** — kjøres i `PRINT_START_PHASE_1` ✓
