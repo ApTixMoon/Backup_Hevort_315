@@ -81,4 +81,4 @@ primary_branch: main
 [include moonraker-obico-update.cfg]
 
 [spoolman]
-server: http://127.0.0.1:7912
+server: http://192.168.38.239:7912
