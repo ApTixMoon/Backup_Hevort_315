@@ -8,3 +8,7 @@ printer-[0-9]*_[0-9]*.cfg
 *.csv
 *.zip
 ShakeTune_results
+moonraker-obico.cfg
+*.backup
+*.bak*
+sed??????
