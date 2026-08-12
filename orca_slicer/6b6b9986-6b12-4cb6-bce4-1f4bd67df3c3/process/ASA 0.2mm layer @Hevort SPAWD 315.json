@@ -1,0 +1,13 @@
+{
+    "from": "User",
+    "inherits": "process template @Hevort SPAWD 315 0.4 nozzle",
+    "name": "ASA 0.2mm layer @Hevort SPAWD 315",
+    "print_extruder_id": [
+        "1"
+    ],
+    "print_extruder_variant": [
+        "Direct Drive Standard"
+    ],
+    "print_settings_id": "ASA 0.2mm layer @Hevort SPAWD 315",
+    "version": "1.7.0.2"
+}
