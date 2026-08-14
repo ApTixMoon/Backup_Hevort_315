@@ -14,6 +14,10 @@ log:
 
 api:
   listen: ":1984"
+  # Mainsail is served from port 80 and go2rtc from 1984, so the websocket
+  # handshake is cross-origin and go2rtc rejects it by default:
+  #   "websocket: request origin not allowed by Upgrader.CheckOrigin"
+  origin: "*"
 
 rtsp:
   listen: ":8554"
