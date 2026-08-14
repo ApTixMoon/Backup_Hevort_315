@@ -1,0 +1,31 @@
+# go2rtc - H.264 over WebRTC for the Mainsail live view.
+#
+# Why this exists: MJPEG from the C920 is 110-155 Mbit/s at 1080p and the WiFi
+# link carries about 110, so the stream throttled itself to 11-24 fps. H.264 at
+# a fixed 5 Mbit/s removes the problem entirely and is scene-independent, which
+# MJPEG never was.
+#
+# The whole transcode stays in GPU memory. scale_vaapi is not optional: VAAPI's
+# JPEG decoder emits 4:2:2 surfaces and h264_vaapi needs NV12, and without the
+# conversion ffmpeg reports "No usable encoding profile found".
+
+log:
+  level: warn
+
+api:
+  listen: ":1984"
+
+rtsp:
+  listen: ":8554"
+
+webrtc:
+  listen: ":8555"
+
+streams:
+  hevort: >
+    exec:ffmpeg -hide_banner -loglevel error
+    -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128
+    -f mjpeg -i http://127.0.0.1:8080/?action=stream
+    -vf scale_vaapi=format=nv12
+    -c:v h264_vaapi -b:v 5M -g 30
+    -f rtsp -rtsp_transport tcp {output}
