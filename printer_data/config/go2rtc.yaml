@@ -20,6 +20,10 @@ rtsp:
 
 webrtc:
   listen: ":8555"
+  # Only offer the LAN address. Without this go2rtc also advertises the
+  # Docker bridges, which no client can reach - they just add timeouts.
+  candidates:
+    - 192.168.30.252:8555
 
 streams:
   hevort: >
