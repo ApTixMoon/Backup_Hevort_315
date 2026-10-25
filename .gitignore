@@ -12,3 +12,4 @@ moonraker-obico.cfg
 *.backup
 *.bak*
 sed??????
+*.pyc
