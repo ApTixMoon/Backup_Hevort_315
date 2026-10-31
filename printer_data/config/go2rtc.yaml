@@ -49,10 +49,22 @@ webrtc:
     - 192.168.30.252:8555
 
 streams:
+  # Chamber temperature, 2026-10-31 (ENDRINGSLOGG). The second input is a
+  # small transparent 2 fps canvas. drawtext writes /run/cam-overlay/overlay.txt
+  # on it, a file kept current by cam-overlay.service (scripts/cam_overlay.py).
+  # overlay_vaapi lays it on the video on the GPU, top right, since Mobileraker's
+  # own full-screen text sits top left. Measured: no extra CPU over the plain
+  # transcode. If that text file is missing, ffmpeg stops and the stream with
+  # it, so check cam-overlay.service first.
+  # Undo: replace the -f lavfi, -filter_complex and -map lines below with
+  # this line, which was there before, and restart go2rtc:
+  #   -vf scale_vaapi=format=nv12
   hevort: >
     exec:ffmpeg -hide_banner -loglevel error
     -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128
     -f mjpeg -i http://127.0.0.1:8080/?action=stream
-    -vf scale_vaapi=format=nv12
+    -f lavfi -i color=c=black@0.0:s=540x140:r=2,format=bgra
+    -filter_complex [1:v]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:textfile=/run/cam-overlay/overlay.txt:reload=1:fontsize=40:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=10:line_spacing=6:x=w-tw-12:y=12,hwupload[o];[0:v]scale_vaapi=format=nv12[m];[m][o]overlay_vaapi=x=W-w-12:y=12[v]
+    -map [v]
     -c:v h264_vaapi -b:v 5M -g 30
     -f rtsp -rtsp_transport tcp {output}
