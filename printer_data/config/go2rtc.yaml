@@ -56,6 +56,13 @@ streams:
   # own full-screen text sits top left. Measured: no extra CPU over the plain
   # transcode. If that text file is missing, ffmpeg stops and the stream with
   # it, so check cam-overlay.service first.
+  # Text style (changed 2026-10-31 01:10) matches Mobileraker's own camera
+  # text in its default theme: IBM Plex Sans Regular, white at 70 %, no box.
+  # The font came from github.com/IBM/plex and is installed in
+  # /usr/local/share/fonts/ibm-plex-sans. The faint shadow is our addition:
+  # without it the text disappeared against bright parts of the picture.
+  # The style before: DejaVuSans-Bold, white, box=1 boxcolor=black@0.55
+  # boxborderw=10, line_spacing=6.
   # Undo: replace the -f lavfi, -filter_complex and -map lines below with
   # this line, which was there before, and restart go2rtc:
   #   -vf scale_vaapi=format=nv12
@@ -64,7 +71,7 @@ streams:
     -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128
     -f mjpeg -i http://127.0.0.1:8080/?action=stream
     -f lavfi -i color=c=black@0.0:s=540x140:r=2,format=bgra
-    -filter_complex [1:v]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:textfile=/run/cam-overlay/overlay.txt:reload=1:fontsize=40:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=10:line_spacing=6:x=w-tw-12:y=12,hwupload[o];[0:v]scale_vaapi=format=nv12[m];[m][o]overlay_vaapi=x=W-w-12:y=12[v]
+    -filter_complex [1:v]drawtext=fontfile=/usr/local/share/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf:textfile=/run/cam-overlay/overlay.txt:reload=1:fontsize=40:fontcolor=white@0.7:shadowcolor=black@0.6:shadowx=2:shadowy=2:line_spacing=4:x=w-tw-12:y=12,hwupload[o];[0:v]scale_vaapi=format=nv12[m];[m][o]overlay_vaapi=x=W-w-12:y=12[v]
     -map [v]
     -c:v h264_vaapi -b:v 5M -g 30
     -f rtsp -rtsp_transport tcp {output}
