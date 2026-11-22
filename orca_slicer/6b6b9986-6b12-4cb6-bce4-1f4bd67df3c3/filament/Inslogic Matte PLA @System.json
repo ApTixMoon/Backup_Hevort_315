@@ -1,0 +1,51 @@
+{
+	"enable_pressure_advance": [
+		"1"
+	],
+	"fan_max_speed": [
+		"80"
+	],
+	"fan_min_speed": [
+		"70"
+	],
+	"filament_extruder_variant": [
+		"Direct Drive Standard"
+	],
+	"filament_flow_ratio": [
+		"0.95"
+	],
+	"filament_max_volumetric_speed": [
+		"35"
+	],
+	"filament_retract_when_changing_layer": [
+		"0"
+	],
+	"filament_retraction_length": [
+		"0.5"
+	],
+	"filament_settings_id": [
+		"Inslogic Matte PLA @System"
+	],
+	"filament_wipe": [
+		"0"
+	],
+	"from": "User",
+	"full_fan_speed_layer": [
+		"4"
+	],
+	"hot_plate_temp": [
+		"60"
+	],
+	"hot_plate_temp_initial_layer": [
+		"60"
+	],
+	"inherits": "Generic PLA @System",
+	"name": "Inslogic Matte PLA @System",
+	"pressure_advance": [
+		"0.046"
+	],
+	"slow_down_layer_time": [
+		"1"
+	],
+	"version": "2.3.2.50"
+}

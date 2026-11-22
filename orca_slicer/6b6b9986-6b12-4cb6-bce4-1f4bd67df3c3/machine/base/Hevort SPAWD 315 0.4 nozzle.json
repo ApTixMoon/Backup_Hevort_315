@@ -53,7 +53,7 @@
 	"extruder_variant_list": [
 		"Direct Drive Standard"
 	],
-	"fan_kickstart": "2",
+	"fan_kickstart": "0",
 	"fan_speedup_overhangs": "1",
 	"fan_speedup_time": "2",
 	"file_start_gcode": "",
@@ -151,7 +151,7 @@
 		"0"
 	],
 	"machine_pause_gcode": "PAUSE\n",
-	"machine_start_gcode": "PRINT_START_PHASE_1 BED_TEMP=[bed_temperature_initial_layer_single] HOTEND_TEMP=[nozzle_temperature_initial_layer] CHAMBER_TEMP=[chamber_temperature]\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0 ;Z0.8 to stop oozing\n\nM109 S[nozzle_temperature_initial_layer]     ; Wait for hotend to reach final temp\n\n  \nG92 E0.0 ; reset extruder distance position\n\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]} Z0.8 F6000.0\nG1 X{first_layer_print_min[0]-3} Y{first_layer_print_min[1]+30} E40 F360.0\nG92 E0.0\nG1 E-0.5 F2100;\n\n\nG0 Z2\n\nG92 E0.0 ; reset extruder distance position\n\nSET_FILAMENT_SENSOR SENSOR=filament_motion ENABLE=1\nM117",
+	"machine_start_gcode": "PRINT_START_PHASE_1 BED_TEMP=[bed_temperature_initial_layer_single] HOTEND_TEMP=[nozzle_temperature_initial_layer] CHAMBER_TEMP=[chamber_temperature]\n\nG1 X{max(first_layer_print_min[0] - 3, 1)} Y{min(max(first_layer_print_min[1], 1), 269)} Z0.8 F6000.0 ; Z0.8 to stop oozing\n\nM109 S[nozzle_temperature_initial_layer]     ; Wait for hotend to reach final temp\n\nSET_FILAMENT_SENSOR SENSOR=filament_motion ENABLE=0\n\nG92 E0.0\nG1 X{max(first_layer_print_min[0] - 3, 1)} Y{min(max(first_layer_print_min[1], 1), 269)} Z0.8 F6000.0\nG1 X{max(first_layer_print_min[0] - 3, 1)} Y{min(max(first_layer_print_min[1], 1), 269) + 30} E40 F360.0\nG92 E0.0\nG1 E-0.5 F2100\n\nG0 Z2\nG92 E0.0\n\nSET_FILAMENT_SENSOR SENSOR=filament_motion ENABLE=1\nM117\n",
 	"machine_tool_change_time": "0",
 	"machine_unload_filament_time": "0",
 	"manual_filament_change": "0",
@@ -191,10 +191,10 @@
 	"print_host": "192.168.30.252",
 	"print_host_webui": "",
 	"printable_area": [
-		"0x0",
-		"300x0",
-		"300x300",
-		"0x300"
+		"4x4",
+		"304x4",
+		"304x304",
+		"4x304"
 	],
 	"printable_height": "450",
 	"printer_agent": "",

@@ -1,0 +1,28 @@
+{
+	"elefant_foot_compensation": "0.2",
+	"elefant_foot_compensation_layers": "2",
+	"from": "User",
+	"gap_infill_speed": "170",
+	"inherits": "process template @Hevort SPAWD 315 0.4 nozzle",
+	"inner_wall_speed": "200",
+	"internal_solid_infill_speed": "200",
+	"name": "Inslogic Matte PLA 0.2mm layer @Hevort SPAWD 315 0.4 nozzle",
+	"outer_wall_speed": "200",
+	"print_extruder_id": [
+		"1"
+	],
+	"print_extruder_variant": [
+		"Direct Drive Standard"
+	],
+	"print_sequence": "by object",
+	"print_settings_id": "Inslogic Matte PLA 0.2mm layer @Hevort SPAWD 315 0.4 nozzle",
+	"raft_first_layer_expansion": "4",
+	"sparse_infill_speed": "200",
+	"support_interface_speed": "130",
+	"support_object_first_layer_gap": "0.4",
+	"support_speed": "150",
+	"support_top_z_distance": "0.2",
+	"top_surface_speed": "200",
+	"version": "1.7.0.2",
+	"wall_loops": "7"
+}
